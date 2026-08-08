@@ -584,9 +584,9 @@
       <div class="state-msg">Carregando painel…</div>
     </div>
     <div id="aprovarBar" style="display:none; margin-top:14px;">
-      <a id="linkAprovarEnviar" href="#" target="_blank" rel="noopener" class="aprovar-btn">
-        Abrir Aprovar e Enviar ↗
-      </a>
+      <button id="linkAprovarEnviar" type="button" class="aprovar-btn">
+        Ir pra Tarefas → Aprovar Contrato
+      </button>
     </div>
   </div>
 
@@ -791,17 +791,12 @@
   function renderAprovarBar(resumo){
     const bar = document.getElementById('aprovarBar');
     const link = document.getElementById('linkAprovarEnviar');
-    let origin = null;
-    try{ origin = new URL(WEBHOOK_URL).origin; }catch(e){ origin = null; }
-    if (!origin || FORM_ID_APROVAR_ENVIAR.startsWith('COLE_AQUI')){
+    const pendentes = resumo?.rascunhos_aguardando_revisao || 0;
+    if (pendentes === 0){
       bar.style.display = 'none';
       return;
     }
-    link.href = `${origin}/form/${FORM_ID_APROVAR_ENVIAR}`;
-    const pendentes = resumo?.rascunhos_aguardando_revisao || 0;
-    link.textContent = pendentes > 0
-      ? `Abrir Aprovar e Enviar — ${pendentes} aguardando ↗`
-      : 'Abrir Aprovar e Enviar ↗';
+    link.textContent = `Ir pra Tarefas → Aprovar Contrato — ${pendentes} aguardando`;
     link.classList.toggle('attention', pendentes > 0);
     bar.style.display = 'block';
   }
@@ -932,6 +927,13 @@
   document.addEventListener('click', (e) => {
     if (e.target && e.target.id === 'btnGerarVistoria') gerarVistoria();
     if (e.target && e.target.id === 'btnAbrirAprovacao') abrirAprovacaoPreenchida();
+    if (e.target && e.target.id === 'linkAprovarEnviar') {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      const tabCadastrar = document.querySelector('.tab-btn[data-tab="cadastrar"]');
+      if (tabCadastrar) tabCadastrar.classList.add('active');
+      document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+      document.getElementById('tab-cadastrar').style.display = 'block';
+    }
   });
   loadDashboard();
   setInterval(loadDashboard, AUTO_REFRESH_MS);
