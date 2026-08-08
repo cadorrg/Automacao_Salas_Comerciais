@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quadro de Locação</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --board-bg:#1F2321;
+    --board-bg-alt:#262B28;
+    --board-line: rgba(245,243,236,0.08);
+    --plate:#F5F3EC;
+    --plate-muted:#E7E3D6;
+    --ink:#2A2A24;
+    --ink-soft:#726F62;
+    --brass:#B08D57;
+    --brass-bright:#D2AC77;
+    --ok:#4C6B54;
+    --ok-bg:#E7EEE6;
+    --warn:#A2732E;
+    --warn-bg:#F3E7D2;
+    --danger:#9A3A2C;
+    --danger-bg:#F2DFD9;
+    --info:#3B6B8C;
+    --info-bg:#DCE7EC;
+    --radius: 3px;
+    --font-display:'Oswald', sans-serif;
+    --font-body:'IBM Plex Sans', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--board-bg);
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(255,255,255,0.03), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(255,255,255,0.025), transparent 45%);
+    font-family:var(--font-body);
+    color:var(--plate);
+    min-height:100vh;
+    padding: 28px 20px 60px;
+  }
+
+  .board{
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  /* ---------- Header: lobby directory plate ---------- */
+  .board-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom: 2px solid var(--brass);
+    padding-bottom: 16px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .board-header h1{
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(26px, 4vw, 38px);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 0;
+    color: var(--plate);
+  }
+  .board-header .sub{
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--brass-bright);
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+  .board-header .clock{
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: rgba(245,243,236,0.6);
+    text-align: right;
+  }
+  .board-header .clock strong{
+    display:block;
+    color: var(--plate);
+    font-size: 14px;
+  }
+
+  /* ---------- Section labels (engraved brass strip) ---------- */
+  .section-label{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    margin: 34px 0 14px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--brass-bright);
+  }
+  .section-label::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background: var(--board-line);
+  }
+
+  /* ---------- Stat plates ---------- */
+  .stat-row{
+    display:grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+  }
+  .plate{
+    background: var(--plate);
+    color: var(--ink);
+    border-radius: var(--radius);
+    padding: 16px 14px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25), inset 0 0 0 1px rgba(0,0,0,0.04);
+  }
+  .stat-plate .num{
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .stat-plate .label{
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-top: 8px;
+  }
+  .stat-plate.accent-warn .num{ color: var(--warn); }
+  .stat-plate.accent-danger .num{ color: var(--danger); }
+
+  /* ---------- Alerts strip ---------- */
+  .alert-list{
+    display:flex;
+    flex-direction:column;
+    gap: 8px;
+  }
+  .alert-item{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    background: var(--board-bg-alt);
+    border-left: 3px solid var(--brass);
+    border-radius: var(--radius);
+    padding: 11px 14px;
+    font-size: 13.5px;
+  }
+  .alert-item.tipo-atraso{ border-left-color: var(--danger); }
+  .alert-item.tipo-reajuste{ border-left-color: var(--warn); }
+  .alert-item .tag{
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(245,243,236,0.55);
+    flex-shrink:0;
+  }
+  .alert-item .sala-tag{
+    font-family: var(--font-display);
+    font-weight:600;
+    color: var(--plate);
+    flex-shrink:0;
+  }
+  .empty-alerts{
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: rgba(245,243,236,0.45);
+    padding: 8px 2px;
+  }
+
+  /* ---------- Room plates ---------- */
+  .rooms-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .room-plate{
+    background: var(--plate);
+    border-radius: var(--radius);
+    padding: 16px 16px 14px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25), inset 0 0 0 1px rgba(0,0,0,0.04);
+    position: relative;
+  }
+  .room-plate .top-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom: 10px;
+  }
+  .room-plate .sala-num{
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--ink);
+    text-transform: uppercase;
+  }
+  .status-light{
+    width: 10px; height:10px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink:0;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+  }
+  .status-light.ok{ background: var(--ok); }
+  .status-light.warn{ background: var(--warn); }
+  .status-light.danger{ background: var(--danger); }
+  .status-light.pending{ background: var(--ink-soft); }
+  .status-light.info{ background: var(--info); }
+
+  .room-plate .locatario{
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .stage-tracker{
+    margin-bottom: 12px;
+  }
+  .stage-dots{
+    display:flex;
+    align-items:center;
+  }
+  .stage-dots .dot{
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--plate-muted);
+    border: 1px solid rgba(0,0,0,0.1);
+    flex-shrink:0;
+  }
+  .stage-dots .dot.filled{ background: var(--brass); border-color: var(--brass); }
+  .stage-dots .stage-line{
+    flex:1;
+    height: 2px;
+    background: var(--plate-muted);
+    margin: 0 3px;
+  }
+  .stage-dots .stage-line.filled{ background: var(--brass); }
+  .stage-label{
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    margin-top: 5px;
+  }
+  .room-plate .detail-line{
+    display:flex;
+    justify-content:space-between;
+    font-size: 12px;
+    color: var(--ink-soft);
+    padding: 3px 0;
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+  .room-plate .detail-line span:last-child{
+    font-family: var(--font-mono);
+    color: var(--ink);
+  }
+  .room-plate .flags{
+    margin-top: 10px;
+    display:flex;
+    gap: 6px;
+    flex-wrap:wrap;
+  }
+  .flag{
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 2px;
+  }
+  .flag.warn{ background: var(--warn-bg); color: var(--warn); }
+  .flag.danger{ background: var(--danger-bg); color: var(--danger); }
+  .flag.pending{ background: var(--plate-muted); color: var(--ink-soft); }
+  .flag.info{ background: var(--info-bg); color: var(--info); }
+  .room-plate a.contrato-link{
+    display:inline-block;
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--brass);
+    text-decoration: none;
+    border-bottom: 1px solid var(--brass);
+  }
+  .room-plate a.contrato-link:hover{ color: var(--warn); }
+
+  /* ---------- Vistoria card ---------- */
+  .vistoria-card{
+    background: var(--plate);
+    border-radius: var(--radius);
+    padding: 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap: 10px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25);
+  }
+  .vistoria-card .info .titulo{
+    color: var(--ink);
+    font-weight:600;
+    font-size: 14px;
+  }
+  .vistoria-card .info .data{
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-top:3px;
+  }
+  .vistoria-card a{
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--brass);
+    padding: 9px 16px;
+    border-radius: var(--radius);
+    text-decoration:none;
+  }
+  .vistoria-card a:hover{ background: var(--warn); }
+
+  /* ---------- Vistoria generator ---------- */
+  .vistoria-gen{
+    background: var(--plate);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25);
+  }
+  .vistoria-gen-desc{
+    color: var(--ink-soft);
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .vistoria-gen-row{
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .vistoria-gen-row select{
+    flex: 1;
+    min-width: 200px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    padding: 9px 10px;
+    border-radius: var(--radius);
+    border: 1px solid rgba(0,0,0,0.15);
+    background: #fff;
+    color: var(--ink);
+  }
+  .vistoria-gen-row button{
+    font-family: var(--font-display);
+    font-size: 12.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--brass);
+    border: none;
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+  .vistoria-gen-row button:hover:not(:disabled){ background: var(--warn); }
+  .vistoria-gen-row button:disabled{ background: var(--ink-soft); cursor: not-allowed; opacity: 0.6; }
+  .vistoria-status{
+    font-family: var(--font-mono);
+    font-size: 12px;
+    margin-top: 10px;
+    color: var(--ink-soft);
+  }
+  .vistoria-status.ok{ color: var(--ok); }
+  .vistoria-status.error{ color: var(--danger); }
+  .vistoria-status a{ color: var(--brass); }
+
+  /* ---------- Footer / states ---------- */
+  .board-footer{
+    margin-top: 40px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(245,243,236,0.4);
+    border-top: 1px solid var(--board-line);
+    padding-top: 14px;
+    flex-wrap:wrap;
+    gap: 10px;
+  }
+  .board-footer button{
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: none;
+    border: 1px solid rgba(245,243,236,0.3);
+    color: rgba(245,243,236,0.75);
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    cursor:pointer;
+  }
+  .board-footer button:hover{ border-color: var(--brass); color: var(--brass-bright); }
+  .board-footer button:focus-visible, a:focus-visible, .vistoria-card a:focus-visible{
+    outline: 2px solid var(--brass-bright);
+    outline-offset: 2px;
+  }
+
+  .state-msg{
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: rgba(245,243,236,0.55);
+    padding: 40px 0;
+    text-align:center;
+  }
+  .state-msg.error{ color: var(--danger); }
+
+  /* ---------- Tabs ---------- */
+  .tab-nav{
+    display:flex;
+    gap: 6px;
+    margin-bottom: 22px;
+  }
+  .tab-btn{
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--board-bg-alt);
+    color: rgba(245,243,236,0.6);
+    border: 1px solid var(--board-line);
+    border-bottom: none;
+    padding: 10px 18px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    cursor: pointer;
+  }
+  .tab-btn.active{
+    background: var(--plate);
+    color: var(--ink);
+  }
+  .tab-btn:hover:not(.active){ color: var(--brass-bright); }
+  .tab-btn:focus-visible{ outline: 2px solid var(--brass-bright); outline-offset: 2px; }
+
+  /* ---------- Register cards ---------- */
+  .register-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .register-card{
+    background: var(--plate);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25), inset 0 0 0 1px rgba(0,0,0,0.04);
+  }
+  .register-icon{
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1.5px solid var(--brass);
+    color: var(--brass);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom: 14px;
+  }
+  .register-title{
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+  }
+  .register-desc{
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+  .register-link{
+    display:inline-block;
+    font-family: var(--font-display);
+    font-size: 12.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--brass);
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    text-decoration:none;
+  }
+  .register-link:hover{ background: var(--warn); }
+  .register-link:focus-visible{ outline: 2px solid var(--brass-bright); outline-offset: 2px; }
+  .register-note{
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: rgba(245,243,236,0.4);
+    margin-top: 16px;
+  }
+
+  .aprovar-btn{
+    display:inline-block;
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 11px 18px;
+    border-radius: var(--radius);
+    background: var(--board-bg-alt);
+    color: rgba(245,243,236,0.7);
+    border: 1px solid var(--board-line);
+  }
+  .aprovar-btn:hover{ border-color: var(--brass); color: var(--brass-bright); }
+  .aprovar-btn.attention{
+    background: var(--brass);
+    color: #fff;
+    border-color: var(--brass);
+  }
+  .aprovar-btn.attention:hover{ background: var(--warn); }
+
+  .config-banner{
+    background: var(--warn-bg);
+    color: var(--warn);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    line-height:1.5;
+  }
+  .config-banner code{
+    background: rgba(0,0,0,0.08);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+
+  @media (max-width: 760px){
+    .stat-row{ grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px){
+    .stat-row{ grid-template-columns: 1fr 1fr; }
+    .board-header{ flex-direction:column; align-items:flex-start; }
+    .board-header .clock{ text-align:left; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <div class="board-header">
+    <div>
+      <h1>Quadro de Locação</h1>
+      <div class="sub">Salas Comerciais — painel operacional</div>
+    </div>
+    <div class="clock">
+      <strong id="clockDate">—</strong>
+      <span id="clockTime">—</span>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="painel" type="button">Painel</button>
+    <button class="tab-btn" data-tab="cadastrar" type="button">Tarefas</button>
+  </div>
+
+  <div id="configBanner" class="config-banner" style="display:none;">
+    Configure a URL do webhook em <code>WEBHOOK_URL</code> no final do arquivo <code>index.html</code> antes de publicar.
+  </div>
+
+  <div id="tab-painel" class="tab-panel">
+    <div id="content">
+      <div class="state-msg">Carregando painel…</div>
+    </div>
+    <div id="aprovarBar" style="display:none; margin-top:14px;">
+      <a id="linkAprovarEnviar" href="#" target="_blank" rel="noopener" class="aprovar-btn">
+        Abrir Aprovar e Enviar ↗
+      </a>
+    </div>
+  </div>
+
+  <div id="tab-cadastrar" class="tab-panel" style="display:none;">
+    <div class="section-label">Cadastrar locatário</div>
+    <div class="register-grid">
+      <div class="register-card">
+        <div class="register-icon">A</div>
+        <div class="register-title">Novo contrato</div>
+        <div class="register-desc">Sala ainda não tem contrato assinado. Abre o formulário oficial: gera o PDF do contrato e envia para assinatura eletrônica via Autentique. O resto (cobrança, ativação) acontece sozinho depois de assinado.</div>
+        <a id="linkNovoContrato" class="register-link" href="#" target="_blank" rel="noopener">Abrir formulário ↗</a>
+      </div>
+      <div class="register-card">
+        <div class="register-icon">B</div>
+        <div class="register-title">Cliente já locado</div>
+        <div class="register-desc">Locatário que assinou contrato fora do sistema e só precisa entrar na cobrança recorrente. Pula a etapa de assinatura e já cria a cobrança mensal.</div>
+        <a id="linkClienteExistente" class="register-link" href="#" target="_blank" rel="noopener">Abrir formulário ↗</a>
+      </div>
+    </div>
+    <div class="register-note">Os formulários abrem em uma nova aba, direto no seu n8n — nenhum dado passa por este site.</div>
+
+    <div class="section-label">Vistoria</div>
+    <div class="vistoria-gen">
+      <div class="vistoria-gen-desc">Suba as fotos na pasta de Vistoria, escolha a sala abaixo e clique em gerar. Isso pode levar até um minuto — o laudo aparece aqui e na sala assim que terminar.</div>
+      <div class="vistoria-gen-row">
+        <select id="selectSalaVistoria"></select>
+        <button id="btnGerarVistoria" type="button">Gerar Laudo Agora</button>
+      </div>
+      <div id="vistoriaStatus" class="vistoria-status"></div>
+    </div>
+  </div>
+
+  <div class="board-footer">
+    <span id="lastUpdated">—</span>
+    <button id="refreshBtn" type="button">Atualizar agora</button>
+  </div>
+</div>
+
+<script>
+  // ======= CONFIGURAÇÃO =======
+  // Cole aqui a URL do webhook do workflow "5 - Dashboard API" (produção, não teste).
+  const WEBHOOK_URL = "https://n8n.coolify.cadoshop.com.br/webhook/dashboard-locacao";
+  const AUTO_REFRESH_MS = 120000; // 2 minutos
+
+  // IDs dos formulários (Form Trigger) dos fluxos "1 - Sala Comercial Produção"
+  // e "3 - Adiciona Cliente Existente". Não precisa mexer nisso, a menos que
+  // você recrie esses nodes do zero (nesse caso, pegue o novo webhookId).
+  const FORM_ID_NOVO_CONTRATO = "0b714e05-0487-4a03-8ca0-dacb1273d76d";
+  const FORM_ID_CLIENTE_EXISTENTE = "70718e0f-e469-44c5-a675-4fcdd8136b5c";
+  // Cole aqui o webhookId do formulário "AP1 - Aprovar e Enviar" que você criou na mão no n8n.
+  // Pega esse valor abrindo o node AP1 → Production URL → é o trecho depois de /form/
+  const FORM_ID_APROVAR_ENVIAR = "fd13e501-8855-45c7-b215-93c44d185289";
+  // Path do webhook do fluxo de Vistoria (nó VI1). Não precisa mexer, a menos
+  // que você troque o "Path" configurado nesse nó no n8n.
+  const VISTORIA_WEBHOOK_PATH = "gerar-vistoria";
+  // =============================
+
+  const fmtMoney = (v) => (v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const fmtDate = (iso) => {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString('pt-BR');
+  };
+
+  function updateClock(){
+    const now = new Date();
+    document.getElementById('clockDate').textContent = now.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long' });
+    document.getElementById('clockTime').textContent = now.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+  }
+  updateClock();
+  setInterval(updateClock, 30000);
+
+  function renderStageTracker(etapa){
+    if (!etapa || !etapa.indice){
+      return `<div class="stage-label">${etapa && etapa.rotulo ? etapa.rotulo : 'Status não reconhecido'}</div>`;
+    }
+    const idx = etapa.indice;
+    const dot = (n) => `<span class="dot ${idx >= n ? 'filled' : ''}"></span>`;
+    const line = (n) => `<span class="stage-line ${idx >= n ? 'filled' : ''}"></span>`;
+    return `
+      <div class="stage-tracker">
+        <div class="stage-dots">
+          ${dot(1)}${line(2)}${dot(2)}${line(3)}${dot(3)}${line(4)}${dot(4)}
+        </div>
+        <div class="stage-label">${etapa.rotulo}</div>
+      </div>
+    `;
+  }
+
+  function statusLightClass(sala){
+    if (sala.em_atraso) return 'danger';
+    if (sala.reajuste_pendente) return 'warn';
+    if (sala.rascunho) return 'info';
+    if ((sala.status || '').toLowerCase() === 'pendente_assinatura') return 'pending';
+    return 'ok';
+  }
+
+  function renderAlerts(alertas){
+    if (!alertas || alertas.length === 0){
+      return '<div class="empty-alerts">Nenhuma pendência no momento. Tudo em dia.</div>';
+    }
+    return '<div class="alert-list">' + alertas.map(a => `
+      <div class="alert-item tipo-${a.tipo}">
+        <span class="sala-tag">${a.sala || '—'}</span>
+        <span>${a.mensagem}${a.locatario ? ' — ' + a.locatario : ''}</span>
+      </div>
+    `).join('') + '</div>';
+  }
+
+  function renderRooms(salas){
+    if (!salas || salas.length === 0){
+      return '<div class="state-msg">Nenhuma sala cadastrada ainda.</div>';
+    }
+    return '<div class="rooms-grid">' + salas.map(s => `
+      <div class="room-plate">
+        <div class="top-row">
+          <div class="sala-num">${s.sala || 'Sala'}</div>
+          <div class="status-light ${statusLightClass(s)}" title="status"></div>
+        </div>
+        <div class="locatario">${s.locatario || 'Sem locatário'}</div>
+        ${renderStageTracker(s.etapa)}
+        <div class="detail-line"><span>Aluguel</span><span>${fmtMoney(s.valor_aluguel)}</span></div>
+        <div class="detail-line"><span>Vencimento</span><span>Dia ${s.dia_vencimento || '—'}</span></div>
+        <div class="detail-line"><span>Assinado em</span><span>${fmtDate(s.data_assinatura)}</span></div>
+        <div class="detail-line"><span>Último reajuste</span><span>${s.ultimo_reajuste || '—'}</span></div>
+        <div class="flags">
+          ${s.em_atraso ? '<span class="flag danger">Atraso</span>' : ''}
+          ${s.reajuste_pendente ? '<span class="flag warn">Reajuste</span>' : ''}
+          ${s.rascunho ? '<span class="flag info">Rascunho — aguarda aprovação</span>' : ''}
+          ${(s.status||'').toLowerCase()==='pendente_assinatura' ? '<span class="flag pending">Pendente</span>' : ''}
+        </div>
+        ${s.contrato_url ? `<a class="contrato-link" href="${s.contrato_url}" target="_blank" rel="noopener">Ver contrato assinado ↗</a>` : ''}
+        ${s.vistoria_url ? `<a class="contrato-link" href="${s.vistoria_url}" target="_blank" rel="noopener">Ver laudo de vistoria (${fmtDate(s.vistoria_data)}) ↗</a>` : ''}
+      </div>
+    `).join('') + '</div>';
+  }
+
+  function renderVistoria(v){
+    if (!v) return '<div class="empty-alerts">Nenhuma vistoria registrada ainda.</div>';
+    return `
+      <div class="vistoria-card">
+        <div class="info">
+          <div class="titulo">${v.titulo}</div>
+          <div class="data">Gerada em ${fmtDate(v.criado_em)}</div>
+        </div>
+        ${v.url ? `<a href="${v.url}" target="_blank" rel="noopener">Abrir laudo ↗</a>` : ''}
+      </div>
+    `;
+  }
+
+  function renderAprovarBar(resumo){
+    const bar = document.getElementById('aprovarBar');
+    const link = document.getElementById('linkAprovarEnviar');
+    let origin = null;
+    try{ origin = new URL(WEBHOOK_URL).origin; }catch(e){ origin = null; }
+    if (!origin || FORM_ID_APROVAR_ENVIAR.startsWith('COLE_AQUI')){
+      bar.style.display = 'none';
+      return;
+    }
+    link.href = `${origin}/form/${FORM_ID_APROVAR_ENVIAR}`;
+    const pendentes = resumo?.rascunhos_aguardando_revisao || 0;
+    link.textContent = pendentes > 0
+      ? `Abrir Aprovar e Enviar — ${pendentes} aguardando ↗`
+      : 'Abrir Aprovar e Enviar ↗';
+    link.classList.toggle('attention', pendentes > 0);
+    bar.style.display = 'block';
+  }
+
+  function render(data){
+    const r = data.resumo || {};
+    const html = `
+      <div class="stat-row">
+        <div class="plate stat-plate">
+          <div class="num">${r.salas_ocupadas ?? 0}</div>
+          <div class="label">Salas ocupadas</div>
+        </div>
+        <div class="plate stat-plate">
+          <div class="num">${fmtMoney(r.receita_mensal_prevista)}</div>
+          <div class="label">Receita mensal</div>
+        </div>
+        <div class="plate stat-plate ${r.pendentes_assinatura ? 'accent-warn' : ''}">
+          <div class="num">${r.pendentes_assinatura ?? 0}</div>
+          <div class="label">Aguard. assinatura</div>
+        </div>
+        <div class="plate stat-plate ${r.pagamentos_em_atraso ? 'accent-danger' : ''}">
+          <div class="num">${r.pagamentos_em_atraso ?? 0}</div>
+          <div class="label">Pagam. em atraso</div>
+        </div>
+        <div class="plate stat-plate ${r.reajustes_pendentes ? 'accent-warn' : ''}">
+          <div class="num">${r.reajustes_pendentes ?? 0}</div>
+          <div class="label">Reajustes pendentes</div>
+        </div>
+        <div class="plate stat-plate ${r.rascunhos_aguardando_revisao ? 'accent-warn' : ''}">
+          <div class="num">${r.rascunhos_aguardando_revisao ?? 0}</div>
+          <div class="label">Rascunhos p/ revisar</div>
+        </div>
+      </div>
+
+      <div class="section-label">Alertas</div>
+      ${renderAlerts(data.alertas)}
+
+      <div class="section-label">Salas</div>
+      ${renderRooms(data.salas)}
+
+      <div class="section-label">Última vistoria</div>
+      ${renderVistoria(data.ultima_vistoria)}
+    `;
+    document.getElementById('content').innerHTML = html;
+    document.getElementById('lastUpdated').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+    renderAprovarBar(r);
+    popularSelectVistoria(data.salas);
+  }
+
+  function popularSelectVistoria(salas){
+    const sel = document.getElementById('selectSalaVistoria');
+    if (!sel) return;
+    const valorAnterior = sel.value;
+    const opcoes = (salas || []).filter(s => s.documento_id);
+    sel.innerHTML = opcoes.length
+      ? opcoes.map(s => `<option value="${s.documento_id}">${s.sala || 'Sala'} — ${s.locatario || 'sem locatário'}</option>`).join('')
+      : '<option value="">Nenhuma sala cadastrada</option>';
+    if (valorAnterior && opcoes.some(s => s.documento_id === valorAnterior)) {
+      sel.value = valorAnterior;
+    }
+  }
+
+  async function gerarVistoria(){
+    const sel = document.getElementById('selectSalaVistoria');
+    const btn = document.getElementById('btnGerarVistoria');
+    const status = document.getElementById('vistoriaStatus');
+    const documentoId = sel?.value;
+
+    if (!documentoId){
+      status.className = 'vistoria-status error';
+      status.textContent = 'Escolha uma sala antes de gerar.';
+      return;
+    }
+
+    let origin = null;
+    try{ origin = new URL(WEBHOOK_URL).origin; }catch(e){ origin = null; }
+    if (!origin){
+      status.className = 'vistoria-status error';
+      status.textContent = 'WEBHOOK_URL não configurado corretamente.';
+      return;
+    }
+
+    btn.disabled = true;
+    status.className = 'vistoria-status';
+    status.textContent = 'Gerando laudo — isso pode levar até um minuto, não feche esta aba...';
+
+    try{
+      const url = `${origin}/webhook/${VISTORIA_WEBHOOK_PATH}?documento_id=${encodeURIComponent(documentoId)}`;
+      const res = await fetch(url, { cache: 'no-store' });
+      const data = await res.json();
+      if (!res.ok || !data.sucesso){
+        status.className = 'vistoria-status error';
+        status.textContent = data.erro || 'Não foi possível gerar o laudo. Confira se há fotos na pasta de Vistoria.';
+      } else {
+        status.className = 'vistoria-status ok';
+        status.innerHTML = `Laudo gerado: <a href="${data.laudo_url}" target="_blank" rel="noopener">${data.titulo} ↗</a>`;
+        loadDashboard();
+      }
+    }catch(err){
+      status.className = 'vistoria-status error';
+      status.textContent = 'Erro ao chamar o fluxo: ' + err.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function loadDashboard(){
+    if (WEBHOOK_URL.includes('SEU-N8N')){
+      document.getElementById('configBanner').style.display = 'block';
+      document.getElementById('content').innerHTML = '<div class="state-msg">Aguardando configuração da URL do webhook.</div>';
+      return;
+    }
+    try{
+      const res = await fetch(WEBHOOK_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Resposta HTTP ' + res.status);
+      const data = await res.json();
+      render(data);
+    }catch(err){
+      document.getElementById('content').innerHTML = `<div class="state-msg error">Não foi possível carregar os dados. Verifique se o workflow está ativo no n8n.<br>(${err.message})</div>`;
+    }
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', loadDashboard);
+  document.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'btnGerarVistoria') gerarVistoria();
+  });
+  loadDashboard();
+  setInterval(loadDashboard, AUTO_REFRESH_MS);
+
+  // ---------- Links dos formulários de cadastro ----------
+  function setupRegisterLinks(){
+    let origin = null;
+    try{ origin = new URL(WEBHOOK_URL).origin; }catch(e){ origin = null; }
+    const novoLink = document.getElementById('linkNovoContrato');
+    const existenteLink = document.getElementById('linkClienteExistente');
+    if (origin){
+      novoLink.href = `${origin}/form/${FORM_ID_NOVO_CONTRATO}`;
+      existenteLink.href = `${origin}/form/${FORM_ID_CLIENTE_EXISTENTE}`;
+    } else {
+      novoLink.href = '#';
+      existenteLink.href = '#';
+      [novoLink, existenteLink].forEach(a => a.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('Configure WEBHOOK_URL primeiro — os links dos formulários usam o mesmo endereço do seu n8n.');
+      }));
+    }
+  }
+  setupRegisterLinks();
+
+  // ---------- Abas ----------
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+      document.getElementById('tab-' + btn.dataset.tab).style.display = 'block';
+    });
+  });
+</script>
+
+</body>
+</html>
