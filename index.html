@@ -807,7 +807,7 @@
     const valorAnterior = sel.value;
     const opcoes = (salas || []).filter(s => s.documento_id);
     sel.innerHTML = opcoes.length
-      ? opcoes.map(s => `<option value="${s.documento_id}">${s.sala || 'Sala'} — ${s.locatario || 'sem locatário'}</option>`).join('')
+      ? opcoes.map(s => `<option value="${s.documento_id}" data-sala="${(s.sala||'').replace(/"/g,'&quot;')}" data-locatario="${(s.locatario||'').replace(/"/g,'&quot;')}">${s.sala || 'Sala'} — ${s.locatario || 'sem locatário'}</option>`).join('')
       : '<option value="">Nenhuma sala cadastrada</option>';
     if (valorAnterior && opcoes.some(s => s.documento_id === valorAnterior)) {
       sel.value = valorAnterior;
@@ -819,6 +819,9 @@
     const btn = document.getElementById('btnGerarVistoria');
     const status = document.getElementById('vistoriaStatus');
     const documentoId = sel?.value;
+    const opcaoSelecionada = sel?.selectedOptions?.[0];
+    const sala = opcaoSelecionada?.dataset?.sala || '';
+    const locatario = opcaoSelecionada?.dataset?.locatario || '';
 
     if (!documentoId){
       status.className = 'vistoria-status error';
@@ -839,7 +842,7 @@
     status.textContent = 'Gerando laudo — isso pode levar até um minuto, não feche esta aba...';
 
     try{
-      const url = `${origin}/webhook/${VISTORIA_WEBHOOK_PATH}?documento_id=${encodeURIComponent(documentoId)}`;
+      const url = `${origin}/webhook/${VISTORIA_WEBHOOK_PATH}?documento_id=${encodeURIComponent(documentoId)}&sala=${encodeURIComponent(sala)}&locatario=${encodeURIComponent(locatario)}`;
       const res = await fetch(url, { cache: 'no-store' });
       const data = await res.json();
       if (!res.ok || !data.sucesso){
