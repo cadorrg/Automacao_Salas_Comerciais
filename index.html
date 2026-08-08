@@ -608,6 +608,16 @@
     </div>
     <div class="register-note">Os formulários abrem em uma nova aba, direto no seu n8n — nenhum dado passa por este site.</div>
 
+    <div class="section-label">Aprovar contrato</div>
+    <div class="vistoria-gen">
+      <div class="vistoria-gen-desc">Escolha o rascunho abaixo e clique em abrir — o formulário de aprovação já vem com a sala e o locatário preenchidos, só confirmar.</div>
+      <div class="vistoria-gen-row">
+        <select id="selectRascunho"></select>
+        <button id="btnAbrirAprovacao" type="button">Abrir Aprovação Preenchida ↗</button>
+      </div>
+      <div id="aprovacaoStatus" class="vistoria-status"></div>
+    </div>
+
     <div class="section-label">Vistoria</div>
     <div class="vistoria-gen">
       <div class="vistoria-gen-desc">Suba as fotos na pasta de Vistoria, escolha a sala abaixo e clique em gerar. Isso pode levar até um minuto — o laudo aparece aqui e na sala assim que terminar.</div>
@@ -738,6 +748,47 @@
     `;
   }
 
+  function popularSelectRascunho(salas){
+    const sel = document.getElementById('selectRascunho');
+    if (!sel) return;
+    const valorAnterior = sel.value;
+    const opcoes = (salas || []).filter(s => s.rascunho);
+    sel.innerHTML = opcoes.length
+      ? opcoes.map((s, i) => `<option value="${i}" data-sala="${(s.sala||'').replace(/"/g,'&quot;')}" data-locatario="${(s.locatario||'').replace(/"/g,'&quot;')}">${s.sala || 'Sala'} — ${s.locatario || 'sem locatário'}</option>`).join('')
+      : '<option value="">Nenhum rascunho pendente</option>';
+    if (valorAnterior && Number(valorAnterior) < opcoes.length) {
+      sel.value = valorAnterior;
+    }
+  }
+
+  function abrirAprovacaoPreenchida(){
+    const sel = document.getElementById('selectRascunho');
+    const status = document.getElementById('aprovacaoStatus');
+    const opcaoSelecionada = sel?.selectedOptions?.[0];
+    const sala = opcaoSelecionada?.dataset?.sala;
+    const locatario = opcaoSelecionada?.dataset?.locatario;
+
+    if (!sala || !locatario){
+      status.className = 'vistoria-status error';
+      status.textContent = 'Nenhum rascunho selecionado.';
+      return;
+    }
+
+    let origin = null;
+    try{ origin = new URL(WEBHOOK_URL).origin; }catch(e){ origin = null; }
+    if (!origin || FORM_ID_APROVAR_ENVIAR.startsWith('COLE_AQUI')){
+      status.className = 'vistoria-status error';
+      status.textContent = 'FORM_ID_APROVAR_ENVIAR não configurado.';
+      return;
+    }
+
+    const params = new URLSearchParams({ 'Sala/Casa': sala, 'Nome do locatário': locatario });
+    const url = `${origin}/form/${FORM_ID_APROVAR_ENVIAR}?${params.toString()}`;
+    window.open(url, '_blank', 'noopener');
+    status.className = 'vistoria-status';
+    status.textContent = 'Formulário aberto numa nova aba, já preenchido.';
+  }
+
   function renderAprovarBar(resumo){
     const bar = document.getElementById('aprovarBar');
     const link = document.getElementById('linkAprovarEnviar');
@@ -799,6 +850,7 @@
     document.getElementById('lastUpdated').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
     renderAprovarBar(r);
     popularSelectVistoria(data.salas);
+    popularSelectRascunho(data.salas);
   }
 
   function popularSelectVistoria(salas){
@@ -880,6 +932,7 @@
   document.getElementById('refreshBtn').addEventListener('click', loadDashboard);
   document.addEventListener('click', (e) => {
     if (e.target && e.target.id === 'btnGerarVistoria') gerarVistoria();
+    if (e.target && e.target.id === 'btnAbrirAprovacao') abrirAprovacaoPreenchida();
   });
   loadDashboard();
   setInterval(loadDashboard, AUTO_REFRESH_MS);
