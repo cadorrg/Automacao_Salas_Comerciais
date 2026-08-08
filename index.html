@@ -851,10 +851,10 @@
     const sel = document.getElementById('selectSalaVistoria');
     if (!sel) return;
     const valorAnterior = sel.value;
-    const opcoes = (salas || []).filter(s => s.documento_id);
+    const opcoes = (salas || []).filter(s => s.documento_id && !s.vistoria_url);
     sel.innerHTML = opcoes.length
       ? opcoes.map(s => `<option value="${s.documento_id}" data-sala="${(s.sala||'').replace(/"/g,'&quot;')}" data-locatario="${(s.locatario||'').replace(/"/g,'&quot;')}">${s.sala || 'Sala'} — ${s.locatario || 'sem locatário'}</option>`).join('')
-      : '<option value="">Nenhuma sala cadastrada</option>';
+      : '<option value="">Nenhuma sala aguardando vistoria</option>';
     if (valorAnterior && opcoes.some(s => s.documento_id === valorAnterior)) {
       sel.value = valorAnterior;
     }
