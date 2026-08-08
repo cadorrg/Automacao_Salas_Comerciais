@@ -785,7 +785,7 @@
     const url = `${origin}/form/${FORM_ID_APROVAR_ENVIAR}?${encodeURIComponent('Sala/Casa')}=${encodeURIComponent(sala)}&${encodeURIComponent('Nome do locatário')}=${encodeURIComponent(locatario)}`;
     window.open(url, '_blank', 'noopener');
     status.className = 'vistoria-status';
-    status.textContent = 'Formulário aberto numa nova aba, já preenchido.';
+    status.innerHTML = `Aberto. Sala lida: "${sala}" | Locatário lido: "${locatario}"<br>URL: <span style="word-break:break-all;">${url}</span>`;
   }
 
   function renderAprovarBar(resumo){
