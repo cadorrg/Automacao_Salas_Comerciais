@@ -48,7 +48,6 @@
     margin: 0 auto;
   }
 
-  /* ---------- Header: lobby directory plate ---------- */
   .board-header{
     display:flex;
     justify-content:space-between;
@@ -87,7 +86,6 @@
     font-size: 14px;
   }
 
-  /* ---------- Section labels (engraved brass strip) ---------- */
   .section-label{
     display:flex;
     align-items:center;
@@ -106,7 +104,6 @@
     background: var(--board-line);
   }
 
-  /* ---------- Stat plates ---------- */
   .stat-row{
     display:grid;
     grid-template-columns: repeat(6, 1fr);
@@ -136,7 +133,6 @@
   .stat-plate.accent-warn .num{ color: var(--warn); }
   .stat-plate.accent-danger .num{ color: var(--danger); }
 
-  /* ---------- Alerts strip ---------- */
   .alert-list{
     display:flex;
     flex-direction:column;
@@ -175,7 +171,6 @@
     padding: 8px 2px;
   }
 
-  /* ---------- Room plates ---------- */
   .rooms-grid{
     display:grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -290,7 +285,6 @@
   }
   .room-plate a.contrato-link:hover{ color: var(--warn); }
 
-  /* ---------- Vistoria card ---------- */
   .vistoria-card{
     background: var(--plate);
     border-radius: var(--radius);
@@ -326,7 +320,6 @@
   }
   .vistoria-card a:hover{ background: var(--warn); }
 
-  /* ---------- Vistoria generator ---------- */
   .vistoria-gen{
     background: var(--plate);
     border-radius: var(--radius);
@@ -379,7 +372,6 @@
   .vistoria-status.error{ color: var(--danger); }
   .vistoria-status a{ color: var(--brass); }
 
-  /* ---------- Footer / states ---------- */
   .board-footer{
     margin-top: 40px;
     display:flex;
@@ -418,7 +410,6 @@
   }
   .state-msg.error{ color: var(--danger); }
 
-  /* ---------- Tabs ---------- */
   .tab-nav{
     display:flex;
     gap: 6px;
@@ -444,7 +435,6 @@
   .tab-btn:hover:not(.active){ color: var(--brass-bright); }
   .tab-btn:focus-visible{ outline: 2px solid var(--brass-bright); outline-offset: 2px; }
 
-  /* ---------- Register cards ---------- */
   .register-grid{
     display:grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -638,22 +628,15 @@
 
 <script>
   // ======= CONFIGURAÇÃO =======
-  // Cole aqui a URL do webhook do workflow "5 - Dashboard API" (produção, não teste).
   const WEBHOOK_URL = "https://n8n.coolify.cadoshop.com.br/webhook/dashboard-locacao";
   const AUTO_REFRESH_MS = 120000; // 2 minutos
 
-  // IDs dos formulários (Form Trigger) dos fluxos "1 - Sala Comercial Produção"
-  // e "3 - Adiciona Cliente Existente". Não precisa mexer nisso, a menos que
-  // você recrie esses nodes do zero (nesse caso, pegue o novo webhookId).
-  //const FORM_ID_NOVO_CONTRATO = "0b714e05-0487-4a03-8ca0-dacb1273d76d"; //autentique
-  const FORM_ID_NOVO_CONTRATO = "9b038a08-4d8d-4dfc-b388-28738d6beb5a"; //Zapsign
+  // IDs dos formulários (Form Trigger). Ativos: os do fluxo em Autentique.
+  const FORM_ID_NOVO_CONTRATO = "0b714e05-0487-4a03-8ca0-dacb1273d76d"; //autentique
+  //const FORM_ID_NOVO_CONTRATO = "9b038a08-4d8d-4dfc-b388-28738d6beb5a"; //Zapsign (antigo)
   const FORM_ID_CLIENTE_EXISTENTE = "70718e0f-e469-44c5-a675-4fcdd8136b5c";
-  // Cole aqui o webhookId do formulário "AP1 - Aprovar e Enviar" que você criou na mão no n8n.
-  // Pega esse valor abrindo o node AP1 → Production URL → é o trecho depois de /form/
- // const FORM_ID_APROVAR_ENVIAR = "fd13e501-8855-45c7-b215-93c44d185289"; //autentique
-  const FORM_ID_APROVAR_ENVIAR = "0b7ce322-85ca-4598-ad8a-956e1147854a"; //zipsign
-  // Path do webhook do fluxo de Vistoria (nó VI1). Não precisa mexer, a menos
-  // que você troque o "Path" configurado nesse nó no n8n.
+  const FORM_ID_APROVAR_ENVIAR = "fd13e501-8855-45c7-b215-93c44d185289"; //autentique
+  //const FORM_ID_APROVAR_ENVIAR = "0b7ce322-85ca-4598-ad8a-956e1147854a"; //zapsign (antigo)
   const VISTORIA_WEBHOOK_PATH = "gerar-vistoria";
   // =============================
 
