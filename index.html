@@ -660,15 +660,6 @@
       <div class="seq-step" data-step="1">
         <div class="seq-marker"><span class="seq-num">1</span><span class="seq-line"></span></div>
         <div class="seq-body">
-          <div class="seq-title">Inquilino anterior saiu? Registre a vistoria</div>
-          <div class="seq-desc">Suba as fotos do estado da sala antes de repassar pro próximo locatário. Se a sala já estava vazia ou não precisa de vistoria, pule direto pro passo 2.</div>
-          <a href="#vistoria" class="register-link">Ir pra vistoria ↓</a>
-        </div>
-      </div>
-
-      <div class="seq-step" data-step="2">
-        <div class="seq-marker"><span class="seq-num">2</span><span class="seq-line"></span></div>
-        <div class="seq-body">
           <div class="seq-title">Cadastre o novo contrato</div>
           <div class="seq-desc">Preencha os dados do novo locatário: sala, valores, datas. Isso gera um rascunho do contrato automaticamente — ele ainda não vai pra assinatura, dá pra revisar antes.</div>
           <a id="linkNovoContrato" class="register-link" href="#" target="_blank" rel="noopener">Abrir formulário ↗</a>
@@ -676,8 +667,8 @@
         </div>
       </div>
 
-      <div class="seq-step" data-step="3">
-        <div class="seq-marker"><span class="seq-num">3</span><span class="seq-line"></span></div>
+      <div class="seq-step" data-step="2">
+        <div class="seq-marker"><span class="seq-num">2</span><span class="seq-line"></span></div>
         <div class="seq-body">
           <div class="seq-title">Revise e aprove o rascunho<span id="seqBadge3" class="seq-badge"></span></div>
           <div class="seq-desc">Confira os dados do contrato gerado no passo anterior. Ao aprovar, ele é enviado automaticamente pro Autentique — o formulário abaixo já vem preenchido, só escolher e confirmar.</div>
@@ -686,6 +677,15 @@
             <button id="btnAbrirAprovacao" type="button">Abrir Aprovação Preenchida ↗</button>
           </div>
           <div id="aprovacaoStatus" class="vistoria-status"></div>
+        </div>
+      </div>
+
+      <div class="seq-step" data-step="3">
+        <div class="seq-marker"><span class="seq-num">3</span><span class="seq-line"></span></div>
+        <div class="seq-body">
+          <div class="seq-title">Faça a vistoria de entrada</div>
+          <div class="seq-desc">Com o inquilino novo, documente o estado do imóvel na entrada. Só dá pra gerar o laudo a partir daqui, porque ele é vinculado ao contrato que acabou de ser aprovado no passo anterior. Mande uma cópia do laudo pro locatário junto com o contrato.</div>
+          <a href="#vistoria" class="register-link">Ir pra vistoria ↓</a>
         </div>
       </div>
 
@@ -706,9 +706,11 @@
       </div>
     </div>
 
+    <div class="seq-info">Quando esse inquilino for embora, no futuro: volte aqui e gere outra vistoria pra essa mesma sala — é a vistoria de saída, pra comparar com a de entrada que você fez agora.</div>
+
     <div class="section-label" id="vistoria">Vistoria</div>
     <div class="vistoria-gen">
-      <div class="vistoria-gen-desc">Suba as fotos na pasta de Vistoria, escolha a sala abaixo e clique em gerar. Isso pode levar até um minuto — o laudo aparece aqui e na sala assim que terminar.</div>
+      <div class="vistoria-gen-desc">Suba as fotos na pasta de Vistoria, escolha a sala abaixo e clique em gerar. Isso pode levar até um minuto — o laudo aparece aqui e na sala assim que terminar. Use isso tanto na entrada de um inquilino novo (passo 3 acima) quanto na saída, pra comparar os dois laudos depois. Só aparecem aqui salas com contrato já aprovado.</div>
       <a href="https://drive.google.com/drive/folders/1tU74SZolOiX3GXyv6S9yLLoQ0bNOKyEp" target="_blank" rel="noopener" class="register-link" style="display:inline-block;margin-bottom:12px;">📁 Abrir pasta de Vistoria ↗</a>
       <div class="vistoria-gen-row">
         <select id="selectSalaVistoria"></select>
@@ -903,9 +905,9 @@
     }
 
     // Passo em destaque: prioriza o que precisa de ação humana agora.
-    let passoAtual = 2; // padrão: nada pendente, ponto de partida é cadastrar
-    if (rascunhos > 0) passoAtual = 3;
-    else if (pendentes > 0) passoAtual = 4;
+    let passoAtual = 1; // padrão: nada pendente, ponto de partida é cadastrar
+    if (rascunhos > 0) passoAtual = 2; // rascunho esperando revisão → passo "aprovar"
+    else if (pendentes > 0) passoAtual = 4; // já aprovado, esperando assinatura
 
     document.querySelectorAll('#sequence .seq-step').forEach(el => {
       el.classList.remove('seq-current');
@@ -1046,8 +1048,8 @@
       if (tabCadastrar) tabCadastrar.classList.add('active');
       document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
       document.getElementById('tab-cadastrar').style.display = 'block';
-      const passo3 = document.querySelector('#sequence .seq-step[data-step="3"]');
-      if (passo3) passo3.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const passoAprovar = document.querySelector('#sequence .seq-step[data-step="2"]');
+      if (passoAprovar) passoAprovar.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
   loadDashboard();
