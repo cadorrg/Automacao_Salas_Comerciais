@@ -435,45 +435,6 @@
   .tab-btn:hover:not(.active){ color: var(--brass-bright); }
   .tab-btn:focus-visible{ outline: 2px solid var(--brass-bright); outline-offset: 2px; }
 
-  .register-grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 14px;
-  }
-  .register-card{
-    background: var(--plate);
-    border-radius: var(--radius);
-    padding: 22px 20px;
-    box-shadow: 0 2px 0 rgba(0,0,0,0.25), inset 0 0 0 1px rgba(0,0,0,0.04);
-  }
-  .register-icon{
-    font-family: var(--font-display);
-    font-size: 15px;
-    font-weight: 600;
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    border: 1.5px solid var(--brass);
-    color: var(--brass);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    margin-bottom: 14px;
-  }
-  .register-title{
-    font-family: var(--font-display);
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--ink);
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    margin-bottom: 8px;
-  }
-  .register-desc{
-    font-size: 13px;
-    color: var(--ink-soft);
-    line-height: 1.55;
-    margin-bottom: 16px;
-  }
   .register-link{
     display:inline-block;
     font-family: var(--font-display);
@@ -507,6 +468,7 @@
     background: var(--board-bg-alt);
     color: rgba(245,243,236,0.7);
     border: 1px solid var(--board-line);
+    cursor:pointer;
   }
   .aprovar-btn:hover{ border-color: var(--brass); color: var(--brass-bright); }
   .aprovar-btn.attention{
@@ -530,6 +492,116 @@
     background: rgba(0,0,0,0.08);
     padding: 1px 5px;
     border-radius: 2px;
+  }
+
+  /* ===== Sequência guiada ===== */
+  .sequence-intro{
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: rgba(245,243,236,0.5);
+    line-height: 1.6;
+    max-width: 62ch;
+    margin-bottom: 22px;
+  }
+  .sequence{
+    display:flex;
+    flex-direction:column;
+  }
+  .seq-step{
+    display:flex;
+    gap:16px;
+  }
+  .seq-marker{
+    flex-shrink:0;
+    width:34px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .seq-num{
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    background: var(--board-bg-alt);
+    border:1.5px solid var(--brass);
+    color:var(--brass-bright);
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:15px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .seq-line{
+    flex:1;
+    width:1px;
+    min-height:22px;
+    background: var(--board-line);
+    margin-top:4px;
+  }
+  .seq-step:last-child .seq-line{ display:none; }
+  .seq-body{
+    padding-bottom:28px;
+    flex:1;
+    min-width:0;
+  }
+  .seq-title{
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--plate);
+    margin-bottom: 5px;
+  }
+  .seq-desc{
+    font-size: 13px;
+    color: rgba(245,243,236,0.55);
+    line-height: 1.55;
+    margin-bottom: 12px;
+    max-width: 58ch;
+  }
+  .seq-badge{
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    background: var(--warn);
+    color: #1F2321;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-left: 8px;
+    display: none;
+    vertical-align: middle;
+  }
+  .seq-badge.show{ display: inline-block; }
+  .seq-step.seq-current .seq-num{
+    background: var(--brass);
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(176,141,87,0.22);
+  }
+  .seq-step.seq-current .seq-title{ color: var(--brass-bright); }
+  .seq-step.seq-done .seq-num{
+    background: var(--board-bg-alt);
+    border-color: var(--ok);
+    color: var(--ok);
+  }
+  .seq-note{
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: rgba(245,243,236,0.4);
+    margin-top: 4px;
+  }
+  .seq-note a{ color: var(--brass-bright); text-decoration:none; border-bottom:1px solid var(--brass); }
+  .seq-note a:hover{ color: var(--warn); }
+  .seq-info{
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: rgba(245,243,236,0.45);
+    background: var(--board-bg-alt);
+    border-left: 3px solid var(--brass);
+    padding: 9px 12px;
+    border-radius: var(--radius);
+    display:inline-block;
   }
 
   @media (max-width: 760px){
@@ -581,34 +653,60 @@
   </div>
 
   <div id="tab-cadastrar" class="tab-panel" style="display:none;">
-    <div class="section-label">Cadastrar locatário</div>
-    <div class="register-grid">
-      <div class="register-card">
-        <div class="register-icon">A</div>
-        <div class="register-title">Novo contrato</div>
-        <div class="register-desc">Sala ainda não tem contrato assinado. Abre o formulário oficial: gera o PDF do contrato e envia para assinatura eletrônica via Autentique. O resto (cobrança, ativação) acontece sozinho depois de assinado.</div>
-        <a id="linkNovoContrato" class="register-link" href="#" target="_blank" rel="noopener">Abrir formulário ↗</a>
+    <div class="section-label">Quando uma sala fica livre, siga esta ordem</div>
+    <div class="sequence-intro">Não usa isso com frequência? Sem problema — é só seguir de cima pra baixo. O passo que precisa da sua atenção agora aparece destacado em dourado.</div>
+
+    <div class="sequence" id="sequence">
+      <div class="seq-step" data-step="1">
+        <div class="seq-marker"><span class="seq-num">1</span><span class="seq-line"></span></div>
+        <div class="seq-body">
+          <div class="seq-title">Inquilino anterior saiu? Registre a vistoria</div>
+          <div class="seq-desc">Suba as fotos do estado da sala antes de repassar pro próximo locatário. Se a sala já estava vazia ou não precisa de vistoria, pule direto pro passo 2.</div>
+          <a href="#vistoria" class="register-link">Ir pra vistoria ↓</a>
+        </div>
       </div>
-      <div class="register-card">
-        <div class="register-icon">B</div>
-        <div class="register-title">Cliente já locado</div>
-        <div class="register-desc">Locatário que assinou contrato fora do sistema e só precisa entrar na cobrança recorrente. Pula a etapa de assinatura e já cria a cobrança mensal.</div>
-        <a id="linkClienteExistente" class="register-link" href="#" target="_blank" rel="noopener">Abrir formulário ↗</a>
+
+      <div class="seq-step" data-step="2">
+        <div class="seq-marker"><span class="seq-num">2</span><span class="seq-line"></span></div>
+        <div class="seq-body">
+          <div class="seq-title">Cadastre o novo contrato</div>
+          <div class="seq-desc">Preencha os dados do novo locatário: sala, valores, datas. Isso gera um rascunho do contrato automaticamente — ele ainda não vai pra assinatura, dá pra revisar antes.</div>
+          <a id="linkNovoContrato" class="register-link" href="#" target="_blank" rel="noopener">Abrir formulário ↗</a>
+          <div class="seq-note">Contrato já foi assinado fora do sistema e só precisa entrar na cobrança? <a id="linkClienteExistente" href="#" target="_blank" rel="noopener">Pule direto pra cobrança ↗</a></div>
+        </div>
+      </div>
+
+      <div class="seq-step" data-step="3">
+        <div class="seq-marker"><span class="seq-num">3</span><span class="seq-line"></span></div>
+        <div class="seq-body">
+          <div class="seq-title">Revise e aprove o rascunho<span id="seqBadge3" class="seq-badge"></span></div>
+          <div class="seq-desc">Confira os dados do contrato gerado no passo anterior. Ao aprovar, ele é enviado automaticamente pro Autentique — o formulário abaixo já vem preenchido, só escolher e confirmar.</div>
+          <div class="vistoria-gen-row">
+            <select id="selectRascunho"></select>
+            <button id="btnAbrirAprovacao" type="button">Abrir Aprovação Preenchida ↗</button>
+          </div>
+          <div id="aprovacaoStatus" class="vistoria-status"></div>
+        </div>
+      </div>
+
+      <div class="seq-step" data-step="4">
+        <div class="seq-marker"><span class="seq-num">4</span><span class="seq-line"></span></div>
+        <div class="seq-body">
+          <div class="seq-title">Aguarde as assinaturas<span id="seqBadge4" class="seq-badge"></span></div>
+          <div class="seq-desc">O locatário e você recebem o link de assinatura eletrônica por WhatsApp automaticamente, um de cada vez. Não precisa fazer nada aqui além de esperar — acompanhe pelo Painel se quiser.</div>
+        </div>
+      </div>
+
+      <div class="seq-step" data-step="5">
+        <div class="seq-marker"><span class="seq-num">5</span></div>
+        <div class="seq-body">
+          <div class="seq-title">Pronto — cobrança automática ativa</div>
+          <div class="seq-desc">Assim que todo mundo assinar, a cobrança inicial e a mensalidade recorrente são criadas sozinhas. A sala aparece como ocupada no Painel.</div>
+        </div>
       </div>
     </div>
-    <div class="register-note">Os formulários abrem em uma nova aba, direto no seu n8n — nenhum dado passa por este site.</div>
 
-    <div class="section-label">Aprovar contrato</div>
-    <div class="vistoria-gen">
-      <div class="vistoria-gen-desc">Escolha o rascunho abaixo e clique em abrir — o formulário de aprovação já vem com a sala e o locatário preenchidos, só confirmar.</div>
-      <div class="vistoria-gen-row">
-        <select id="selectRascunho"></select>
-        <button id="btnAbrirAprovacao" type="button">Abrir Aprovação Preenchida ↗</button>
-      </div>
-      <div id="aprovacaoStatus" class="vistoria-status"></div>
-    </div>
-
-    <div class="section-label">Vistoria</div>
+    <div class="section-label" id="vistoria">Vistoria</div>
     <div class="vistoria-gen">
       <div class="vistoria-gen-desc">Suba as fotos na pasta de Vistoria, escolha a sala abaixo e clique em gerar. Isso pode levar até um minuto — o laudo aparece aqui e na sala assim que terminar.</div>
       <a href="https://drive.google.com/drive/folders/1tU74SZolOiX3GXyv6S9yLLoQ0bNOKyEp" target="_blank" rel="noopener" class="register-link" style="display:inline-block;margin-bottom:12px;">📁 Abrir pasta de Vistoria ↗</a>
@@ -618,6 +716,8 @@
       </div>
       <div id="vistoriaStatus" class="vistoria-status"></div>
     </div>
+
+    <div class="register-note">Os formulários abrem em uma nova aba, direto no seu n8n — nenhum dado passa por este site.</div>
   </div>
 
   <div class="board-footer">
@@ -787,6 +887,32 @@
     bar.style.display = 'block';
   }
 
+  function renderSequenceState(resumo){
+    const rascunhos = resumo?.rascunhos_aguardando_revisao || 0;
+    const pendentes = resumo?.pendentes_assinatura || 0;
+
+    const badge3 = document.getElementById('seqBadge3');
+    const badge4 = document.getElementById('seqBadge4');
+    if (badge3){
+      badge3.classList.toggle('show', rascunhos > 0);
+      badge3.textContent = rascunhos > 0 ? `${rascunhos} aguardando` : '';
+    }
+    if (badge4){
+      badge4.classList.toggle('show', pendentes > 0);
+      badge4.textContent = pendentes > 0 ? `${pendentes} aguardando` : '';
+    }
+
+    // Passo em destaque: prioriza o que precisa de ação humana agora.
+    let passoAtual = 2; // padrão: nada pendente, ponto de partida é cadastrar
+    if (rascunhos > 0) passoAtual = 3;
+    else if (pendentes > 0) passoAtual = 4;
+
+    document.querySelectorAll('#sequence .seq-step').forEach(el => {
+      el.classList.remove('seq-current');
+      if (Number(el.dataset.step) === passoAtual) el.classList.add('seq-current');
+    });
+  }
+
   function render(data){
     const r = data.resumo || {};
     const html = `
@@ -829,6 +955,7 @@
     document.getElementById('content').innerHTML = html;
     document.getElementById('lastUpdated').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
     renderAprovarBar(r);
+    renderSequenceState(r);
     popularSelectVistoria(data.salas);
     popularSelectRascunho(data.salas);
   }
@@ -919,6 +1046,8 @@
       if (tabCadastrar) tabCadastrar.classList.add('active');
       document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
       document.getElementById('tab-cadastrar').style.display = 'block';
+      const passo3 = document.querySelector('#sequence .seq-step[data-step="3"]');
+      if (passo3) passo3.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
   loadDashboard();
